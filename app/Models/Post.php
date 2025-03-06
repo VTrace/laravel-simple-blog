@@ -40,7 +40,7 @@ class Post extends Model
 
     public function scopePublished($query)
     {
-        return $query->whereNotNull('published_at')->orderBy('published_at', 'desc');
+        return $query->whereNotNull('published_at')->where('status', 'published')->orderBy('published_at', 'desc');
     }
 
     public function setTitleAttribute($value)
@@ -54,8 +54,13 @@ class Post extends Model
         return 'slug';
     }
 
+    // public function author()
+    // {
+    //     return $this->hasOne(User::class, 'id', 'author_id');
+    // }
+
     public function author()
     {
-        return $this->hasOne(User::class, 'id', 'author_id');
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

@@ -8,7 +8,7 @@ use App\Http\Controllers\ProfileController;
 Route::get('/', HomeController::class)->name('home');
 
 Route::get('posts', [PostController::class, 'index'])->name('posts.index');
-Route::get('posts/{post}', [PostController::class, 'index'])->name('posts.show');
+Route::get('posts/show/{post}', [PostController::class, 'show'])->name('posts.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

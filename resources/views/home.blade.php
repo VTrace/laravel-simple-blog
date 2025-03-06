@@ -22,11 +22,11 @@
             @auth
             <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                 <div class="space-y-6 p-6">
-                    @foreach ($posts as $post)
+                    @forelse ($posts as $post)
                         <div class="rounded-md border p-5 shadow">
                             <div class="flex items-center gap-2">
                                 <span class="flex-none rounded {{ $post->status->badgeColor() }}"> {{ ucfirst($post->status->value) }}</span>
-                                <h3><a href="#" class="text-blue-500">{{ $post->title }}</a></h3>
+                                <h3><a href="{{ route('posts.show', $post->slug) }}" class="text-blue-500">{{ $post->title }}</a></h3>
                             </div>
                             <div class="mt-4 flex items-end justify-between">
                                 <div>
@@ -44,7 +44,11 @@
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                    <div class="overflow-hidden bg-white rounded-md border p-5 shadow text-center">
+                        <h3>No Blog Post Yet </h3>
+                    </div>
+                    @endforelse
                     </div>
                     <div>{{ $posts->links('components.pagination') }}</div>
                 </div>

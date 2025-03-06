@@ -43,23 +43,26 @@ class PostController extends Controller
     {
         $upsertPostAction->execute($request);
 
-        return redirect()->route('posts.index')->with('success', 'Post added successfully!');
+        return redirect()->route('home')->with('success', 'Post added successfully!');
     }
 
 
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show($slug)
     {
+        $post = Post::where('slug', $slug)->where('status', 'published')->firstOrFail();
+
         return view('posts.show', compact('post'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Post $post)
+    public function edit($slug)
     {
+        $post = Post::where('slug', $slug)->where('author_id', auth()->auth()->id)->firstOrFail();
         return view('posts.edit', compact('post'));
     }
 
@@ -70,7 +73,7 @@ class PostController extends Controller
     {
         $upsertPostAction->execute($request, $post);
 
-        return redirect()->route('posts.index')->with('success', 'Post modified successfully!');
+        return redirect()->route('home')->with('success', 'Post modified successfully!');
     }
 
     /**
@@ -80,6 +83,6 @@ class PostController extends Controller
     {
         $post->delete();
 
-        return redirect()->route('posts.index')->with('success', 'Post deleted successfully!');
+        return redirect()->route('home')->with('success', 'Post deleted successfully!');
     }
 }

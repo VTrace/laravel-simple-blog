@@ -11,11 +11,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Post extends Model
 {
-    use HasFactory;
-    use UsesUuid;
+    use HasFactory, UsesUuid;
 
     protected $table = 'posts';
-    protected $guarded = ['id'];
+
     protected $fillable = [
         'title',
         'body',
@@ -28,39 +27,57 @@ class Post extends Model
 
     protected $casts = [
         'status' => PostStatus::class,
-        'scheduled_at' => 'date',
-        'published_at' => 'date',
+        'scheduled_at' => 'immutable_date', // Prefer immutable date type
+        'published_at' => 'immutable_date',
     ];
 
+    /**
+     * Boot method to handle model events.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Generate slug only when creating
+        static::creating(function ($post) {
+            if (empty($post->slug)) {
+                $post->slug = Str::slug($post->title) . '-' . Str::random(5);
+            }
+        });
+    }
+
+    /**
+     * Scope: Select only posts that are scheduled for publishing.
+     */
     public function scopeScheduleToPublish(Builder $query): Builder
     {
         return $query->where('status', PostStatus::Scheduled)
                     ->where('scheduled_at', '<=', now());
     }
 
-    public function scopePublished($query)
+    /**
+     * Scope: Select only published posts.
+     */
+    public function scopePublished(Builder $query): Builder
     {
-        return $query->whereNotNull('published_at')->where('status', 'published')->orderBy('published_at', 'desc');
+        return $query->whereNotNull('published_at')
+                    ->where('status', PostStatus::Published)
+                    ->latest('published_at');
     }
 
-    public function setTitleAttribute($value)
-    {
-        $this->attributes['title'] = $value;
-        $this->attributes['slug'] = Str::slug($value) . '-' . Str::random(5);
-    }
-
-    public function getRouteKeyName()
+    /**
+     * Get the route model binding key.
+     */
+    public function getRouteKeyName(): string
     {
         return 'slug';
     }
 
-    // public function author()
-    // {
-    //     return $this->hasOne(User::class, 'id', 'author_id');
-    // }
-
+    /**
+     * Relationship: A post belongs to an author.
+     */
     public function author()
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsTo(User::class, 'author_id')->withDefault();
     }
 }

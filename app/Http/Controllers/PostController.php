@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Post;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use App\Actions\Posts\UpsertPostAction;
 use App\Http\Requests\Posts\UpsertPostRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -16,7 +18,7 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
         $limit = 15;
         $query = Post::query();
@@ -32,28 +34,27 @@ class PostController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new post.
      */
-    public function create()
+    public function create(): View
     {
         return view('posts.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created post.
      */
-    public function store(UpsertPostRequests $request, UpsertPostAction $upsertPostAction)
+    public function store(UpsertPostRequests $request, UpsertPostAction $upsertPostAction): RedirectResponse
     {
-        $upsertPostAction->execute($request);
+        $upsertPostAction->execute($request->validated());
 
         return redirect()->route('home')->with('success', 'Post added successfully!');
     }
 
-
     /**
      * Display the specified resource.
      */
-    public function show($slug)
+    public function show($slug): View
     {
         $post = Post::where('slug', $slug)->where('status', 'published')->firstOrFail();
 
@@ -63,7 +64,7 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Post $post)
+    public function edit(Post $post): View
     {
         $this->authorize('update', $post);
         return view('posts.edit', compact('post'));

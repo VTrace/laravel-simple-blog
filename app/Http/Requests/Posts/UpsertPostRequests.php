@@ -25,30 +25,23 @@ class UpsertPostRequests extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:60',
-            'body' => 'required|string',
-            // 'status' => 'required|in:' . implode(',', array_column(PostStatus::cases(), 'value')),
-            'scheduled_at' => 'nullable|date|after:now',
-            'is_draft' => 'boolean'
+            'title' => ['required', 'string', 'max:60'],
+            'body' => ['required', 'string'],
+            'scheduled_at' => ['nullable', 'date', 'after_or_equal:today'],
+            'is_draft' => ['boolean'],
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
-            'title.required' => 'The title field is required.',
-            'title.string' => 'The title must be a valid string.',
+            'title.required' => 'The title is required.',
+            'title.string' => 'The title must be a string.',
             'title.max' => 'The title must not exceed 60 characters.',
-
-            'body.required' => 'The body field is required.',
-            'body.string' => 'The body must be a valid string.',
-
-            // 'status.required' => 'The status field is required.',
-            // 'status.in' => 'The selected status is invalid.',
-
-            'scheduled_at.date' => 'The scheduled publish date must be a valid date.',
-            'scheduled_at.after' => 'The scheduled publish date must be in the future.',
-
+            'body.required' => 'The body is required.',
+            'body.string' => 'The body must be a string.',
+            'scheduled_at.date' => 'The scheduled date must be a valid date.',
+            'scheduled_at.after_or_equal' => 'The scheduled publish date cannot be earlier than today.',
             'is_draft.boolean' => 'The draft status must be true or false.',
         ];
     }

@@ -13,16 +13,17 @@ class HomeController extends Controller
      */
     public function __invoke(Request $request)
     {
-        if (Auth::check()) {
-            $limit = 15;
-            $query = Post::query();
-            $posts = $query->select(['title', 'status', 'slug', 'author_id', 'updated_at', 'published_at'])->with(['author:id,name'])->where('author_id', auth()->user()->id)->latest()->paginate($limit);
-        } else {
-            $posts = null;
-        }
+        $limit = 15;
 
-        return view('home', compact(
-            'posts',
-        ));
+        // Get posts only if authenticated
+        $posts = Auth::check()
+            ? Post::select(['title', 'status', 'slug', 'author_id', 'updated_at', 'published_at'])
+                ->with('author:id,name')
+                ->where('author_id', Auth::id())
+                ->latest()
+                ->paginate($limit)
+            : collect(); // Return empty collection for guests
+
+        return view('home', compact('posts'));
     }
 }

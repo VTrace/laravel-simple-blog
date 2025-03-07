@@ -25,6 +25,7 @@
                         <form method="POST" action="{{ route('posts.update', $post->slug) }}" class="space-y-6">
                             @csrf
                             @method('PUT')
+                            <input type="hidden" name="slug" value="{{ $post->slug }}">
 
                             {{-- Title Input --}}
                             <div>
@@ -43,7 +44,7 @@
                             {{-- Scheduled Publish Date Input --}}
                             <div>
                                 <x-input-label for="scheduled_at" :value="__('Publish Date')" />
-                                <x-text-input id="scheduled_at" name="scheduled_at" type="date" class="mt-1 block w-full" value="{{ old('scheduled_at', optional($post->scheduled_at)->format('Y-m-d')) }}" min="{{ now()->toDateString() }}" />
+                                <x-text-input id="scheduled_at" name="scheduled_at" type="date" class="mt-1 block w-full" value="{{ old('scheduled_at', $post->scheduled_at ? $post->scheduled_at->format('Y-m-d') : '') }}" min="{{ now()->toDateString() }}" />
                                 <x-input-error :messages="$errors->get('scheduled_at')" class="mt-2" />
                             </div>
 

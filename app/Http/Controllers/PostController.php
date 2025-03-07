@@ -7,9 +7,12 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Actions\Posts\UpsertPostAction;
 use App\Http\Requests\Posts\UpsertPostRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PostController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */

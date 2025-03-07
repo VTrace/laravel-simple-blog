@@ -21,15 +21,14 @@ class PostController extends Controller
     public function index(): View
     {
         $limit = 15;
-        $query = Post::query();
-        $posts = $query->select(['title', 'slug', 'author_id', 'updated_at', 'published_at'])->with(['author:id,name'])->published()->paginate($limit);
-        $count = $posts->count();
-        $count_all = $query->count();
+        $posts = Post::query()
+            ->select(['title', 'slug', 'author_id', 'updated_at', 'published_at'])
+            ->with(['author:id,name'])
+            ->published()
+            ->paginate($limit);
 
         return view('posts.index', compact(
             'posts',
-            'count',
-            'count_all',
         ));
     }
 

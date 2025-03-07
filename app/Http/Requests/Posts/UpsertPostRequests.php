@@ -12,7 +12,9 @@ class UpsertPostRequests extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        // Only allow the post author to update
+        $post = $this->route('post');
+        return $post ? $this->user()->can('update', $post) : true;
     }
 
     /**

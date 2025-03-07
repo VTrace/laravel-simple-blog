@@ -60,9 +60,9 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($slug)
+    public function edit(Post $post)
     {
-        $post = Post::where('slug', $slug)->where('author_id', auth()->auth()->id)->firstOrFail();
+        $this->authorize('update', $post);
         return view('posts.edit', compact('post'));
     }
 

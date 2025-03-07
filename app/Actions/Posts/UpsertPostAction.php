@@ -7,49 +7,53 @@ use App\Models\Post;
 
 class UpsertPostAction
 {
-    public function execute(array $data): Post
+    public function execute($request): Post
     {
-        $post = Post::updateOrCreate(
-            ['slug' => $data['slug'] ?? null],
+        return Post::updateOrCreate(
+            ['slug' => $request->slug],
             [
-                'title' => $data['title'],
-                'body' => $data['body'],
-                'status' => $this->determineStatus($data),
-                'is_draft' => data_get($data, 'is_draft', false),
+                'title' => $request->title,
+                'body' => $request->body,
+                'status' => $this->determineStatus($request),
+                'is_draft' => $request->boolean('is_draft'),
                 'author_id' => auth()->id(),
-                'scheduled_at' => data_get($data, 'scheduled_at'),
-                'published_at' => $this->determinePublishedAt($data),
-            ]
+                'scheduled_at' => $this->parseScheduledAt($request),
+                'published_at' => $this->determinePublishedAt($request),
+            ],
         );
-
-        return $post;
     }
 
     /**
-     * Determine post status based on input data.
+     * Determine post status based on request data.
      */
-    private function determineStatus(array $data): string
+    private function determineStatus($request): string
     {
-        if (!empty($data['is_draft'])) {
+        if ($request->boolean('is_draft')) {
             return 'draft';
         }
 
-        $scheduledAt = data_get($data, 'scheduled_at');
-        return $scheduledAt && $scheduledAt > now() ? 'scheduled' : 'published';
+        return $request->filled('scheduled_at') && Carbon::parse($request->scheduled_at)->isFuture()
+            ? 'scheduled'
+            : 'published';
     }
 
     /**
-     * Determine published_at value.
+     * Parse scheduled_at date, ensuring it's properly formatted.
      */
-    private function determinePublishedAt(array $data): ?string
+    private function parseScheduledAt($request): ?Carbon
     {
-        $scheduledAt = data_get($data, 'scheduled_at');
+        return $request->filled('scheduled_at')
+            ? Carbon::parse($request->scheduled_at)
+            : null;
+    }
 
-        // If scheduled_at is exactly now, set it as published
-        if ($scheduledAt && now()->equalTo(Carbon::parse($scheduledAt))) {
-            return $scheduledAt;
-        }
-
-        return null;
+    /**
+     * Determine published_at value based on scheduled date.
+     */
+    private function determinePublishedAt($request): ?Carbon
+    {
+        return $request->filled('scheduled_at') && Carbon::parse($request->scheduled_at)->isToday()
+            ? Carbon::parse($request->scheduled_at)
+            : null;
     }
 }

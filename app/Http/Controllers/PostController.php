@@ -46,7 +46,7 @@ class PostController extends Controller
      */
     public function store(UpsertPostRequests $request, UpsertPostAction $upsertPostAction): RedirectResponse
     {
-        $upsertPostAction->execute($request->validated());
+        $upsertPostAction->execute($request);
 
         return redirect()->route('home')->with('success', 'Post added successfully!');
     }
